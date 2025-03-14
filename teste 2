@@ -1,0 +1,72 @@
+class MaquinaDeTuring:
+    def __init__(self, fita_inicial, tabela_de_transicoes, estado_inicial, estado_aceitacao):
+        self.fita = list(fita_inicial)  # Converte a fita inicial para uma lista de símbolos
+        self.tabela_de_transicoes = tabela_de_transicoes  # A tabela de transições (dicionário)
+        self.estado = estado_inicial  # Estado inicial
+        self.estado_aceitacao = estado_aceitacao  # Estado de aceitação
+        self.cabecote = 0  # A posição inicial do cabeçote na fita
+
+    def executar(self):
+        while True:
+            # Lê o símbolo na posição atual do cabeçote
+            simbolo_atual = self.fita[self.cabecote] if self.cabecote < len(self.fita) else ' '  # Espaço em branco se fora da fita
+
+            # Verifica se a transição existe para o símbolo atual e o estado
+            if (self.estado, simbolo_atual) not in self.tabela_de_transicoes:
+                print("Máquina de Turing parou. Não há mais transições.")
+                break
+
+            # Obtém a próxima transição
+            novo_estado, simbolo, direcao = self.tabela_de_transicoes[(self.estado, simbolo_atual)]
+
+            # Escreve o novo símbolo na fita
+            if self.cabecote < len(self.fita):
+                self.fita[self.cabecote] = simbolo
+            else:
+                self.fita.append(simbolo)  # Expande a fita se necessário
+
+            # Move o cabeçote
+            if direcao == 'direita':
+                self.cabecote += 1
+            elif direcao == 'esquerda':
+                self.cabecote -= 1
+
+            # Garante que a fita tenha espaço suficiente
+            if self.cabecote < 0:
+                self.fita.insert(0, ' ')
+                self.cabecote = 0
+
+            # Atualiza o estado atual
+            self.estado = novo_estado
+
+            # Exibe o estado atual e a fita
+            print(f"Estado: {self.estado}, Fita: {''.join(self.fita)}, Cabeçote: {self.cabecote}")
+            
+            # Se o estado atual for o estado de aceitação, a máquina aceita
+            if self.estado == self.estado_aceitacao:
+                print("Máquina de Turing aceitou a entrada!")
+                break
+
+
+# Exemplo de uso
+
+# Fita inicial (exemplo: uma string de 1's)
+fita_inicial = "111"
+
+# Tabela de transições:
+# (estado_atual, simbolo_lido) : (novo_estado, simbolo_a_escrever, direcao)
+tabela_de_transicoes = {
+    ('q0', '1'): ('q0', '1', 'direita'),
+    ('q0', ' '): ('q1', ' ', 'esquerda'),
+    ('q1', '1'): ('q2', '1', 'esquerda'),
+    ('q2', '1'): ('q3', '1', 'direita'),
+    ('q3', ' '): ('q4', ' ', 'direita')
+}
+
+# Estado inicial e estado de aceitação
+estado_inicial = 'q0'
+estado_aceitacao = 'q4'
+
+# Criando e executando a máquina de Turing
+maquina = MaquinaDeTuring(fita_inicial, tabela_de_transicoes, estado_inicial, estado_aceitacao)
+maquina.executar()
