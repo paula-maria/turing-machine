@@ -1,0 +1,72 @@
+class TuringMachine:
+    def __init__(self, tape, initial_state, final_states, transition_function):
+        self.tape = tape  # Fita inicial
+        self.head = 0  # Cabeça de leitura/escrita começa na posição 0
+        self.state = initial_state  # Estado inicial
+        self.final_states = final_states  # Conjunto de estados finais
+        self.transition_function = transition_function  # Função de transição
+
+    def step(self):
+        # Verifica o símbolo sob a cabeça
+        current_symbol = self.tape[self.head]
+        
+        # Verifica se há transição para o estado atual com o símbolo lido
+        if (self.state, current_symbol) in self.transition_function:
+            # Obtém a nova configuração a partir da função de transição
+            new_state, new_symbol, direction = self.transition_function[(self.state, current_symbol)]
+            
+            # Escreve o novo símbolo na fita
+            self.tape[self.head] = new_symbol
+            
+            # Move a cabeça para a direita ou para a esquerda
+            if direction == 'R':
+                self.head += 1
+            elif direction == 'L':
+                self.head -= 1
+
+            # Atualiza o estado
+            self.state = new_state
+
+            return True
+        else:
+            # Não há transição para o estado e símbolo atuais, portanto, a máquina para
+            return False
+
+    def run(self):
+        # Executa a máquina até atingir um estado final ou não houver mais transições possíveis
+        while self.state not in self.final_states:
+            if not self.step():
+                break
+        return self.state in self.final_states
+
+
+# Função para criar a fita de entrada
+def get_input_tape():
+    user_input = input("Digite a entrada para a máquina de Turing (apenas 0s e 1s): ")
+    return list(user_input) + ['#'] * 10  # Fita inicializada com a entrada e espaço extra
+
+# Função de transição para uma máquina de Turing que verifica se a entrada tem a forma "01"
+def example_transition_function():
+    return {
+        ('q0', '0'): ('q1', '0', 'R'),
+        ('q1', '1'): ('q2', '1', 'R'),
+        ('q2', '#'): ('q_accept', '#', 'R'),
+    }
+
+# Definindo os estados e a função de transição para uma máquina de Turing simples
+initial_state = 'q0'
+final_states = {'q_accept'}
+transition_function = example_transition_function()
+
+# Obtendo a entrada do usuário e criando a máquina
+tape = get_input_tape()
+tm = TuringMachine(tape, initial_state, final_states, transition_function)
+
+# Rodando a máquina de Turing
+if tm.run():
+    print("A entrada foi aceita pela máquina de Turing!")
+else:
+    print("A entrada não foi aceita pela máquina de Turing.")
+    
+# Mostrando o estado final da fita
+print("Fita final:", ''.join(tm.tape))
